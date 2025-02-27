@@ -14,6 +14,8 @@ class UnduckDB extends Dexie {
 }
 
 const db = new UnduckDB();
+let cachedBangsConfig: any = null;
+let cachedLastUpdated: number | null = null;
 
 async function fetchBangsConfig(url: string): Promise<any> {
   console.log(`Fetching bangs config from URL: ${url}`);
@@ -26,35 +28,48 @@ async function fetchBangsConfig(url: string): Promise<any> {
     throw new Error("Invalid bangs config format");
   }
   console.log("Fetched bangs config:", data);
-  return { bangs: data };
+  cachedBangsConfig = { bangs: data };
+  return cachedBangsConfig;
 }
 
 async function getBangsConfig(): Promise<any> {
+  if (cachedBangsConfig) {
+    console.log("Using cached bangs config");
+    return cachedBangsConfig;
+  }
   console.log("Retrieving bangs config from IndexedDB");
   const config = await db.config.get("bangs");
   if (!config || !Array.isArray(config.bangs)) {
     throw new Error("Invalid bangs config format in IndexedDB");
   }
   console.log("Retrieved bangs config:", config);
+  cachedBangsConfig = config;
   return config;
 }
 
 async function saveBangsConfig(config: any): Promise<void> {
   console.log("Saving bangs config to IndexedDB:", config);
   await db.config.put(config, "bangs");
+  cachedBangsConfig = config;
   console.log("Saved bangs config");
 }
 
 async function getLastUpdated(): Promise<number> {
+  if (cachedLastUpdated !== null) {
+    console.log("Using cached last updated timestamp");
+    return cachedLastUpdated;
+  }
   console.log("Retrieving last updated timestamp from IndexedDB");
   const lastUpdated = await db.config.get("lastUpdated");
   console.log("Retrieved last updated timestamp:", lastUpdated);
-  return lastUpdated ?? 0;
+  cachedLastUpdated = lastUpdated ?? 0;
+  return cachedLastUpdated;
 }
 
 async function saveLastUpdated(timestamp: number): Promise<void> {
   console.log("Saving last updated timestamp to IndexedDB:", timestamp);
   await db.config.put(timestamp, "lastUpdated");
+  cachedLastUpdated = timestamp;
   console.log("Saved last updated timestamp");
 }
 

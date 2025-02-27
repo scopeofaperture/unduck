@@ -171,7 +171,7 @@ async function getBangredirectUrl(configUrl: string) {
 
 async function doRedirect() {
   console.log("Starting redirect process");
-  const configUrl = new URL(window.location.href).searchParams.get("config") || "/config.json";
+  const configUrl = new URL(window.location.href).searchParams.get("config");
   if (!configUrl) {
     console.log("No config URL provided, rendering default page");
     noSearchDefaultPageRender();

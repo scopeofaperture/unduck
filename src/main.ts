@@ -63,7 +63,7 @@ async function getLastUpdated(): Promise<number> {
   const lastUpdated = await db.config.get("lastUpdated");
   console.log("Retrieved last updated timestamp:", lastUpdated);
   cachedLastUpdated = lastUpdated ?? 0;
-  return cachedLastUpdated;
+  return cachedLastUpdated ?? 0;
 }
 
 async function saveLastUpdated(timestamp: number): Promise<void> {
